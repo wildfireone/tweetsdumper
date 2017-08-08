@@ -86,7 +86,7 @@ if __name__ == '__main__':
     for line in open('accounts.txt').xreadlines():
         print line
         try:
-            get_all_tweets(line)
+            get_all_tweets(line.rstrip())
             time.sleep(60)
         except tweepy.error.TweepError as e:
             print "no tweet for this user "
