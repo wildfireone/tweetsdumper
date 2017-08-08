@@ -11,6 +11,7 @@
 
 import tweepy #https://github.com/tweepy/tweepy
 import csv
+import time
 
 
 
@@ -58,12 +59,23 @@ def get_all_tweets(screen_name):
         print "...%s tweets downloaded so far" % (len(alltweets))
 
     #transform the tweepy tweets into a 2D array that will populate the csv
-    outtweets = [[tweet.id_str, tweet.created_at, tweet.text.encode("utf-8"),tweet.retweet_count,tweet.favorite_count,tweet.entities] for tweet in alltweets]
+
+
+
+    outtweets = []
+    for tweet in alltweets:
+        media_count = 0
+        url_count =0
+        if "media" in tweet.entities:
+            media_count =1
+        if "urls" in tweet.entities:
+            url_count =len(tweet.entities["urls"])
+        outtweets.append([tweet.id_str, tweet.created_at, tweet.text.encode("utf-8"),tweet.retweet_count,tweet.favorite_count,media_count,url_count])
 
     #write the csv
     with open('%s_tweets.csv' % screen_name, 'wb') as f:
         writer = csv.writer(f)
-        writer.writerow(["id","created_at","text","retweet_count","favorite_count","media"])
+        writer.writerow(["id","created_at","text","retweet_count","favorite_count","media_count","url_count"])
         writer.writerows(outtweets)
 
     pass
@@ -75,5 +87,6 @@ if __name__ == '__main__':
         print line
         try:
             get_all_tweets(line)
-        except:
-            pass
+            time.sleep(60)
+        except tweepy.error.TweepError as e:
+            print "no tweet for this user "
